@@ -1,9 +1,14 @@
-"""
-Basic Implementation of an Attention Mechanism
 
-Goals
- - Implement Scaled Dot-Product Attention from Figure 2 (left) of Attention is all you need.
- - The script is to be dependency free and only use built-in features
+"""
+Scaled Dot-Product Attention Example (No Mask)
+
+This script demonstrates a basic, dependency-free implementation of the Scaled Dot-Product Attention mechanism,
+as described in Figure 2 (left) of the "Attention Is All You Need" paper.
+
+Key Features:
+- Pure Python: No external libraries required.
+- Step-by-step breakdown of matrix operations for clarity.
+- Well-commented for educational use and easy understanding.
 
 Author: Hunter L. Hammond
 Date: 08/12/2025
@@ -11,18 +16,22 @@ Date: 08/12/2025
 
 import math
 
+
 def matmul(a, b):
     """
-    Matrix Multiplication.
+    Matrix Multiplication (manual implementation).
 
-    Can use shorthand of matrix multiplication as follows:
-        return [[sum(ai * bj for ai, bj in zip(arow, bcol)) for bcol in zip(*b)] for arow in a]
+    Args:
+        a (List[List[float]]): Left matrix.
+        b (List[List[float]]): Right matrix.
 
-    For readability, I have chosen to show the math in a easier to digest snippet.
+    Returns:
+        List[List[float]]: Resulting matrix after multiplication.
+
+    Note:
+        This function avoids using numpy for educational clarity.
     """
-
-    b_transposed = list(zip(*b))
-
+    b_transposed = list(zip(*b))  # Transpose b for easier column access
     result = []
     for a_row in a:
         new_row = []
@@ -30,47 +39,69 @@ def matmul(a, b):
             dot_product = sum(ai * bj for ai, bj in zip(a_row, b_col))
             new_row.append(dot_product)
         result.append(new_row)
-
-    # Return value: List of List[float], shape (m, n)
     return result
 
+
 def transpose(matrix):
+    """
+    Transpose a matrix (swap rows and columns).
+    """
     return [list(row) for row in zip(*matrix)]
 
+
 def softmax(x):
-    max_val = max(x)
+    """
+    Numerically stable softmax function.
+    Args:
+        x (List[float]): Input vector.
+    Returns:
+        List[float]: Softmax probabilities.
+    """
+    max_val = max(x)  # For numerical stability
     exps = [math.exp(i - max_val) for i in x]
     sum_exps = sum(exps)
     return [j / sum_exps for j in exps]
 
+
 def scaled_dot_product_attention(q, k, v):
-    d_k = len(k[0]) # First key vector dimensionality
+    """
+    Compute Scaled Dot-Product Attention.
 
+    Args:
+        q (List[List[float]]): Query matrix
+        k (List[List[float]]): Key matrix
+        v (List[List[float]]): Value matrix
+
+    Returns:
+        output (List[List[float]]): Attention output
+        attn_weights (List[List[float]]): Attention weights (softmax scores)
+    """
+    d_k = len(k[0])  # Dimensionality of key vectors
     t_k = transpose(k)
-    raw_attn = matmul(Q, t_k) # Multiplying the transposed key and query vectors to get raw attention scores
-
-    scaling = math.sqrt(d_k) # Scaling is applied to normalize the values of the dot product so values are better distributed
-    s_attn = [[raw_attn / scaling for raw_attn in row] for row in raw_attn]
-
-    # Applying softmax to the scaled attention scores
+    # Step 1: Calculate raw attention scores (dot product of Q and K^T)
+    raw_attn = matmul(q, t_k)
+    # Step 2: Scale the attention scores
+    scaling = math.sqrt(d_k)
+    s_attn = [[score / scaling for score in row] for row in raw_attn]
+    # Step 3: Apply softmax to get attention weights
     attn_weights = [softmax(row) for row in s_attn]
-
-    # Final multiplication shown in Scaled Dot-Product Attention
+    # Step 4: Multiply attention weights by values to get output
     output = matmul(attn_weights, v)
-
     return output, attn_weights
 
-if __name__ == '__main__':
 
-    # Small numbers and matrices for simple use case
+if __name__ == '__main__':
+    # Example usage: Small matrices for demonstration
+
+    # Input sequence (each row is a token embedding)
     input_seq = [
-        [0.375,0.951,0.732],
-        [0.599,0.156,0.058],
-        [0.866,0.601,0.708],
-        [0.021,0.832,0.212],
+        [0.375, 0.951, 0.732],
+        [0.599, 0.156, 0.058],
+        [0.866, 0.601, 0.708],
+        [0.021, 0.832, 0.212],
     ]
 
-    # Defining weights as we are using as a standalone Attention Mechanism
+    # Weight matrices for Q, K, V (for standalone attention)
     W_Q = [
         [0.0, 0.0],
         [0.0, 1.0],
@@ -90,14 +121,15 @@ if __name__ == '__main__':
         [0.0, 1.0],
     ]
 
-    # Applying weights to inputs
+    # Step 1: Compute Q, K, V matrices
     Q = matmul(input_seq, W_Q)
     K = matmul(input_seq, W_K)
     V = matmul(input_seq, W_V)
 
+    # Step 2: Run scaled dot-product attention
     output, attn_weights = scaled_dot_product_attention(Q, K, V)
 
-    # Step 3: Display results
+    # Step 3: Display results for inspection
     print("Queries (Q):")
     for q in Q:
         print(q)
@@ -107,7 +139,7 @@ if __name__ == '__main__':
     print("\nValues (V):")
     for v in V:
         print(v)
-    print("\nAttention Weights:")
+    print("\nAttention Weights (Softmax Scores):")
     for row in attn_weights:
         print(["{:.3f}".format(x) for x in row])
     print("\nAttention Output:")
