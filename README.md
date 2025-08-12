@@ -49,7 +49,7 @@ Attention Output:
 ```
 
 ## Author
-Hunter L. Hammond 📅 August 12, 2025 🔗 LinkedIn (optional) 📧 hunter@example.com (optional)
+Hunter L. Hammond 📅 August 12, 2025 🔗 [LinkedIn](https://www.linkedin.com/in/hunter-hammond-a4399919a/) 📧 [hunter.hammond.dev@gmail.com](mailto:hunter.hammond.dev@gmail.com)
 
 ## Reference
 Vaswani et al., Attention Is All You Need, 2017. arXiv:1706.03762
