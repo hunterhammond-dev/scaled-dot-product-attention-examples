@@ -3,8 +3,7 @@
 Scaled Dot-Product Attention Example (No Mask)
 
 This script demonstrates a basic, dependency-free implementation of the Scaled Dot-Product Attention mechanism,
-as described in Figure 2 (left) of the "Attention Is All You Need" paper. Implementing without masking to
-streamline readability.
+as described in Figure 2 (left) of the "Attention Is All You Need" paper.
 
 Key Features:
 - Pure Python: No external libraries required.
@@ -18,7 +17,20 @@ Date: 08/12/2025
 import math
 from utils.attention_utils import matmul, transpose, softmax
 
-def scaled_dot_product_attention(q, k, v):
+def apply_mask(attention, mask):
+    masked_value = -1e9
+
+    masked_attention_scores = []
+    for attention_score_row, mask_row in zip(attention, mask):
+        masked_row = [
+            attention_score if keep else masked_value
+            for attention_score, keep in zip(attention_score_row, mask_row)
+        ]
+        masked_attention_scores.append(masked_row)
+
+    return masked_attention_scores
+
+def scaled_dot_product_attention(q, k, v, mask=None):
     """
     Compute Scaled Dot-Product Attention.
 
@@ -33,14 +45,22 @@ def scaled_dot_product_attention(q, k, v):
     """
     d_k = len(k[0])  # Dimensionality of key vectors
     t_k = transpose(k)
+
     # Step 1: Calculate raw attention scores (dot product of Q and K^T)
     raw_attn = matmul(q, t_k)
+
     # Step 2: Scale the attention scores
     scaling = math.sqrt(d_k)
     s_attn = [[score / scaling for score in row] for row in raw_attn]
-    # Step 3: Apply softmax to get attention weights
+
+    # Step 3: Apply mask
+    if mask is not None:
+        s_attn = apply_mask(s_attn, mask)
+
+    # Step 4: Apply softmax to get attention weights
     attn_weights = [softmax(row) for row in s_attn]
-    # Step 4: Multiply attention weights by values to get output
+
+    # Step 5: Multiply attention weights by values to get output
     output = matmul(attn_weights, v)
     return output, attn_weights
 
@@ -80,8 +100,14 @@ if __name__ == '__main__':
         K = matmul(input_seq, W_K)
         V = matmul(input_seq, W_V)
 
+        mask = [
+            [1, 0, 1],
+            [1, 1, 1],
+            [1, 0, 1],
+        ]
+
         # Step 2: Run scaled dot-product attention
-        output, attn_weights = scaled_dot_product_attention(Q, K, V)
+        output, attn_weights = scaled_dot_product_attention(Q, K, V, mask)
 
         # Step 3: Display results for inspection
         print("Queries (Q):")
