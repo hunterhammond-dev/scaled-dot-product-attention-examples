@@ -66,6 +66,24 @@ Attention Output:
 ['1.075', '1.206']
 ```
 
+## When to Use Masking
+Masking in attention isn’t random, it’s a deliberate part of model design. It controls what each token is allowed to “see” during training, which is especially important in tasks like language modeling where future tokens need to be hidden to prevent cheating. But it goes deeper than that.
+
+Masking is a way to enforce structure. It’s not just about removing noise it’s about removing known distractions. You’re telling the model: “Don’t even consider these positions. They’re not valid in this context.”
+
+This repo includes two versions of the attention implementation:
+| File   | Description   | Use Case   |
+|------------|------------|------------|
+| ```scaled_dot_product_attention.py``` | Includes support for masking. Applies a mask before softmax to zero out invalid positions. | A simpler version without masking. Computes attention across all positions. |
+| ```scaled_dot_product_attention_no_mask.py``` | A simpler version without masking. Computes attention across all positions. | Use this for encoder blocks, non-causal tasks, or when masking isn’t needed.|
+
+### What I Learned
+Masking isn’t just a technical trick, it’s a behavioral constraint that shapes how the model learns. Without it, attention can get spread across irrelevant tokens, or worse, future tokens that break the training objective. By applying a mask (usually a matrix of large negative values), we zero out those positions in softmax and force the model to focus only where it should.
+
+One thing that clicked for me: masking isn’t about removing data, it’s about controlling influence. If a token like "The" is being over-attended and skewing results, you don’t have to delete it from your dataset. You can mask it in specific contexts to suppress its impact while still letting the model learn from its presence. That’s a cleaner, more targeted way to guide behavior.
+
+If you're working on autoregressive generation, decoder blocks, or anything where attention needs to be restricted, masking is essential. For encoder-only setups or educational demos, the no-mask version keeps things simple and transparent.
+
 ## Author
 Hunter L. Hammond 📅 August 12, 2025 🔗 [LinkedIn](https://www.linkedin.com/in/hunter-hammond-a4399919a/) 📧 [hunter.hammond.dev@gmail.com](mailto:hunter.hammond.dev@gmail.com)
 
