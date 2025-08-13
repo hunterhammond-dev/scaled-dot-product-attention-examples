@@ -14,7 +14,19 @@ A minimal, dependency-free implementation of Scaled Dot-Product Attention, inspi
 - Sample input and weight matrices for demonstration
 
 ## File Structure
-attention.py         - Main script with attention implementation
+<pre>
+└───scaled-dot-product-attention-examples
+    │   README.md
+    │   scaled_dot_product_attention.py
+    │   scaled_dot_product_attention_no_mask.py
+    │
+    ├───unit_tests
+    │       attention_utils_unit_tests.py
+    │       no_mask_unit_tests.py
+    │
+    └───utils
+        │   attention_utils.py
+ </pre>
 
 ## How It Works
 The script follows these steps:
@@ -33,7 +45,7 @@ The script follows these steps:
 
    - Multiplies weights with values:![Equation](https://latex.codecogs.com/svg.image?softmax\left(QK^{T}/\sqrt{d_{k}}\right)\cdot&space;V)
 
-Example Output
+### Example Output
 ```
 Queries (Q):
 [0.732, 1.6829999999999998]
@@ -76,6 +88,37 @@ This repo includes two versions of the attention implementation:
 |------------|------------|------------|
 | ```scaled_dot_product_attention.py``` | Includes support for masking. Applies a mask before softmax to zero out invalid positions. | A simpler version without masking. Computes attention across all positions. |
 | ```scaled_dot_product_attention_no_mask.py``` | A simpler version without masking. Computes attention across all positions. | Use this for encoder blocks, non-causal tasks, or when masking isn’t needed.|
+
+### Example Output with Masking
+```
+Queries (Q):
+[0.732, 1.6829999999999998]
+[0.058, 0.214]
+[0.708, 1.309]
+[0.212, 1.044]
+
+Keys (K):
+[0.951, 1.107]
+[0.156, 0.657]
+[0.601, 1.5739999999999998]
+[0.832, 0.23299999999999998]
+
+Values (V):
+[1.107, 1.326]
+[0.657, 0.755]
+[1.5739999999999998, 1.467]
+[0.23299999999999998, 0.853]
+
+Attention Weights (Softmax Scores):
+['0.407', '0.000', '0.593']
+['0.338', '0.305', '0.357']
+['0.436', '0.000', '0.564']
+
+Attention Output:
+['1.384', '1.410']
+['1.136', '1.202']
+['1.370', '1.406']
+```
 
 ### What I Learned
 Masking isn’t just a technical trick, it’s a behavioral constraint that shapes how the model learns. Without it, attention can get spread across irrelevant tokens, or worse, future tokens that break the training objective. By applying a mask (usually a matrix of large negative values), we zero out those positions in softmax and force the model to focus only where it should.
