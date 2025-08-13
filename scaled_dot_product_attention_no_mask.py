@@ -15,53 +15,7 @@ Date: 08/12/2025
 """
 
 import math
-
-
-def matmul(a, b):
-    """
-    Matrix Multiplication (manual implementation).
-
-    Args:
-        a (List[List[float]]): Left matrix.
-        b (List[List[float]]): Right matrix.
-
-    Returns:
-        List[List[float]]: Resulting matrix after multiplication.
-
-    Note:
-        This function avoids using numpy for educational clarity.
-    """
-    b_transposed = list(zip(*b))  # Transpose b for easier column access
-    result = []
-    for a_row in a:
-        new_row = []
-        for b_col in b_transposed:
-            dot_product = sum(ai * bj for ai, bj in zip(a_row, b_col))
-            new_row.append(dot_product)
-        result.append(new_row)
-    return result
-
-
-def transpose(matrix):
-    """
-    Transpose a matrix (swap rows and columns).
-    """
-    return [list(row) for row in zip(*matrix)]
-
-
-def softmax(x):
-    """
-    Numerically stable softmax function.
-    Args:
-        x (List[float]): Input vector.
-    Returns:
-        List[float]: Softmax probabilities.
-    """
-    max_val = max(x)  # For numerical stability
-    exps = [math.exp(i - max_val) for i in x]
-    sum_exps = sum(exps)
-    return [j / sum_exps for j in exps]
-
+from utils.attention_utils import matmul, transpose, softmax
 
 def scaled_dot_product_attention(q, k, v):
     """
@@ -91,57 +45,58 @@ def scaled_dot_product_attention(q, k, v):
 
 
 if __name__ == '__main__':
-    # Example usage: Small matrices for demonstration
+    try:
+        # Input sequence (each row is a token embedding)
+        input_seq = [
+            [0.375, 0.951, 0.732],
+            [0.599, 0.156, 0.058],
+            [0.866, 0.601, 0.708],
+            [0.021, 0.832, 0.212],
+        ]
 
-    # Input sequence (each row is a token embedding)
-    input_seq = [
-        [0.375, 0.951, 0.732],
-        [0.599, 0.156, 0.058],
-        [0.866, 0.601, 0.708],
-        [0.021, 0.832, 0.212],
-    ]
+        # Weight matrices for Q, K, V (for standalone attention)
+        W_Q = [
+            [0.0, 0.0],
+            [0.0, 1.0],
+            [1.0, 1.0],
+            [1.0, 0.0],
+        ]
+        W_K= [
+            [0.0, 1.0],
+            [1.0, 0.0],
+            [0.0, 1.0],
+            [1.0, 0.0],
+        ]
+        W_V = [
+            [1.0, 1.0],
+            [0.0, 1.0],
+            [1.0, 0.0],
+            [0.0, 1.0],
+        ]
 
-    # Weight matrices for Q, K, V (for standalone attention)
-    W_Q = [
-        [0.0, 0.0],
-        [0.0, 1.0],
-        [1.0, 1.0],
-        [1.0, 0.0],
-    ]
-    W_K = [
-        [0.0, 1.0],
-        [1.0, 0.0],
-        [0.0, 1.0],
-        [1.0, 0.0],
-    ]
-    W_V = [
-        [1.0, 1.0],
-        [0.0, 1.0],
-        [1.0, 0.0],
-        [0.0, 1.0],
-    ]
+        # Step 1: Compute Q, K, V matrices
+        Q = matmul(input_seq, W_Q)
+        K = matmul(input_seq, W_K)
+        V = matmul(input_seq, W_V)
 
-    # Step 1: Compute Q, K, V matrices
-    Q = matmul(input_seq, W_Q)
-    K = matmul(input_seq, W_K)
-    V = matmul(input_seq, W_V)
+        # Step 2: Run scaled dot-product attention
+        output, attn_weights = scaled_dot_product_attention(Q, K, V)
 
-    # Step 2: Run scaled dot-product attention
-    output, attn_weights = scaled_dot_product_attention(Q, K, V)
-
-    # Step 3: Display results for inspection
-    print("Queries (Q):")
-    for q in Q:
-        print(q)
-    print("\nKeys (K):")
-    for k in K:
-        print(k)
-    print("\nValues (V):")
-    for v in V:
-        print(v)
-    print("\nAttention Weights (Softmax Scores):")
-    for row in attn_weights:
-        print(["{:.3f}".format(x) for x in row])
-    print("\nAttention Output:")
-    for o in output:
-        print(["{:.3f}".format(x) for x in o])
+        # Step 3: Display results for inspection
+        print("Queries (Q):")
+        for q in Q:
+            print(q)
+        print("\nKeys (K):")
+        for k in K:
+            print(k)
+        print("\nValues (V):")
+        for v in V:
+            print(v)
+        print("\nAttention Weights (Softmax Scores):")
+        for row in attn_weights:
+            print(["{:.3f}".format(x) for x in row])
+        print("\nAttention Output:")
+        for o in output:
+            print(["{:.3f}".format(x) for x in o])
+    except Exception as e:
+        print("An error occurred:", e)
