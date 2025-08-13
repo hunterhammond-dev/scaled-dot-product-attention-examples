@@ -70,4 +70,7 @@ Attention Output:
 Hunter L. Hammond 📅 August 12, 2025 🔗 [LinkedIn](https://www.linkedin.com/in/hunter-hammond-a4399919a/) 📧 [hunter.hammond.dev@gmail.com](mailto:hunter.hammond.dev@gmail.com)
 
 ## Reference
-Vaswani et al., Attention Is All You Need, 2017. arXiv:1706.03762
+Vaswani et al., Attention Is All You Need, 2017. [Source Link](https://arxiv.org/abs/1706.03762)
+
+Give a ⭐ if you find this helpful!
+[![GitHub stars](https://img.shields.io/github/stars/hunterhammond-dev/attention-mechanisms-in-transformers.svg?style=social)](https://github.com/hunterhammond-dev/attention-mechanisms-in-transformers)
