@@ -128,30 +128,44 @@ if __name__ == '__main__':
     try:
         # Input sequence (each row is a token embedding)
         input_seq = [
-            [0.375, 0.951, 0.732],
-            [0.599, 0.156, 0.058],
-            [0.866, 0.601, 0.708],
-            [0.021, 0.832, 0.212],
+            [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8],
+            [0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1],
+            [0.9, 0.1, 0.8, 0.2, 0.7, 0.3, 0.6, 0.4],
+            [0.4, 0.6, 0.2, 0.8, 0.1, 0.9, 0.3, 0.7],
         ]
 
         # Weight matrices for Q, K, V (for standalone attention)
         W_Q = [
-            [0.0, 0.0],
-            [0.0, 1.0],
-            [1.0, 1.0],
-            [1.0, 0.0],
+            [1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1],
         ]
-        W_K= [
-            [0.0, 1.0],
-            [1.0, 0.0],
-            [0.0, 1.0],
-            [1.0, 0.0],
+
+        W_K = [
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
         ]
+
         W_V = [
-            [1.0, 1.0],
-            [0.0, 1.0],
-            [1.0, 0.0],
-            [0.0, 1.0],
+            [1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1],
         ]
 
         # Step 1: Compute Q, K, V matrices
@@ -160,15 +174,20 @@ if __name__ == '__main__':
         V = matmul(input_seq, W_V)
 
         mask = [
-            [1, 0, 1],
-            [1, 1, 1],
-            [1, 0, 1],
+            [1, 0, 0, 0],
+            [1, 1, 0, 0],
+            [1, 1, 1, 0],
+            [1, 1, 1, 1],
         ]
 
         # Step 2: Run multi-head attention
         output, attn_weights = multi_head_attention(Q, K, V, num_heads=2, mask=mask)
 
         # Step 3: Display results
+        print("\nInput Tokens:")
+        for o in input_seq:
+            print(["{:.3f}".format(x) for x in o])
+
         print("\nMulti-Head Attention Output:")
         for o in output:
             print(["{:.3f}".format(x) for x in o])
@@ -179,6 +198,6 @@ if __name__ == '__main__':
             for token_idx, attn_row in enumerate(head):
                 token_embedding = input_seq[token_idx]
                 print(
-                    f"Token {token_idx} {['{:.3f}'.format(x) for x in token_embedding]} → {['{:.3f}'.format(x) for x in attn_row]}")
+                    f"{['{:.3f}'.format(x) for x in attn_row]}")
     except Exception as e:
         print("An error occurred:", e)
